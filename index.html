@@ -341,13 +341,6 @@ html { -webkit-text-size-adjust: 100%; }
   @media (max-width: 480px){ #bgm-volume{ width: 110px; } }
 </style>
 
-
-<style id="bgm-align-2025-10-28">
-  /* default: stays bottom-left if no anchor found */
-  #bgm-panel{ position: fixed; left: 14px; bottom: 64px; }
-  #bgm-toggle{ position: static; } /* keep inside panel */
-</style>
-
 </head>
 <body>
 <div class="container">
@@ -5579,12 +5572,16 @@ if ('serviceWorker' in navigator) {
 </script>
 
 
-<audio id="bgm-audio" src="./audio/bgm.mp3" preload="auto" loop playsinline webkit-playsinline></audio>
+
+<audio id="bgm-audio" preload="auto" loop playsinline webkit-playsinline>
+  <source src="./audio/水墨.MP3" type="audio/mpeg">
+  <source src="./audio/bgm.mp3" type="audio/mpeg">
+</audio>
+
 <div id="bgm-panel" role="group" aria-label="背景音乐控制 / BGM Controls">
   <button id="bgm-toggle" aria-label="音乐开关 / Music">🔈 开启音乐 · Music</button>
   <input id="bgm-volume" type="range" min="0" max="100" step="1" value="40" aria-label="音量 Volume">
 </div>
-
 
 
 <script id="bgm-ctrl-2025-10-28">
@@ -5592,140 +5589,57 @@ if ('serviceWorker' in navigator) {
   const audio = document.getElementById('bgm-audio');
   const toggle = document.getElementById('bgm-toggle');
   const slider = document.getElementById('bgm-volume');
-  const panel  = document.getElementById('bgm-panel');
-  if(!audio || !toggle || !slider || !panel) return;
+  if(!audio || !toggle || !slider) return;
 
-  // ==== Robust playback & memory ====
   const KEY_ON = 'hsk_bgm_on';
   const KEY_VOL = 'hsk_bgm_vol';
+
   let on = localStorage.getItem(KEY_ON) === '1';
   let vol = parseFloat(localStorage.getItem(KEY_VOL) || '0.4');
   if (Number.isNaN(vol)) vol = 0.4;
   audio.volume = Math.min(1, Math.max(0, vol));
-  slider.value = String(Math.round(audio.volume * 100));
+  try { slider.value = String(Math.round(audio.volume * 100)); } catch(e) { slider.value = '40'; }
 
   function label(){ toggle.textContent = on ? '🔊 关闭音乐 · Mute' : '🔈 开启音乐 · Music'; }
   label();
 
-  function showHint(msg){
-    if (!window.__bgm_toast__) {
-      const t = document.createElement('div');
-      t.id = 'bgm-toast';
-      Object.assign(t.style, {position:'fixed',left:'50%',transform:'translateX(-50%)',bottom:'120px',background:'#222',color:'#fff',padding:'8px 12px',borderRadius:'10px',zIndex:9999,display:'none'});
-      document.body.appendChild(t); window.__bgm_toast__ = t;
-    }
-    const t = window.__bgm_toast__;
-    t.textContent = msg; t.style.display='block'; clearTimeout(t.__hide__);
-    t.__hide__ = setTimeout(()=> t.style.display='none', 2200);
-  }
+  async function safePlay(){ try { await audio.play(); } catch(e) {} }
 
-  async function ensureLoaded(){
-    if (audio.readyState < 2) { // HAVE_CURRENT_DATA
-      try { audio.load(); } catch(e){}
-    }
-  }
-  async function safePlay(){
-    try {
-      await ensureLoaded();
-      await audio.play();
-      return true;
-    } catch(e){
-      console.warn('[BGM] play blocked:', e);
-      return false;
-    }
-  }
-
-  // First gesture fallback: only try after user interaction
   const onceStart = () => { if(on) safePlay(); document.removeEventListener('click', onceStart); };
   document.addEventListener('click', onceStart, {once:true});
 
-  // When tab hidden -> pause; visible -> resume if on
-  document.addEventListener('visibilitychange', () => {
-    if(document.hidden){ audio.pause(); }
-    else if(on){ safePlay(); }
-  });
+  document.addEventListener('WeixinJSBridgeReady', () => { if(on) safePlay(); }, false);
+  document.addEventListener('YixinJSBridgeReady',  () => { if(on) safePlay(); }, false);
 
-  // Click to toggle
+  document.addEventListener('visibilitychange', () => { if(document.hidden){ audio.pause(); } else if(on){ safePlay(); } });
+
   toggle.addEventListener('click', async () => {
     on = !on; localStorage.setItem(KEY_ON, on ? '1':'0'); label();
-    if(on){
-      const ok = await safePlay();
-      if(!ok){
-        showHint('需点按一次页面以启动音频 · Tap once to enable audio');
-      }
-    } else {
-      audio.pause();
-    }
+    if(on){ await safePlay(); } else { audio.pause(); }
   });
 
-  // Volume slider
   slider.addEventListener('input', () => {
-    const v = Math.max(0, Math.min(100, parseInt(slider.value || '0', 10))) / 100;
+    const v = Math.Math.max(0, Math.Math.min(100, parseInt(slider.value || '0', 10))) / 100;
     audio.volume = v;
     localStorage.setItem(KEY_VOL, String(v));
   });
-
-  // Basic error diagnostics
-  audio.addEventListener('error', () => {
-    const s = audio.currentSrc || audio.src || '(no src)';
-    showHint('音乐加载失败，请确认 /audio/bgm.mp3 已上传 · Failed to load: ' + s);
-    console.warn('[BGM] error src=', s);
-  });
-
-  // ==== Alignment next to "sound effects" button ====
-  function findSfxButton(){
-    const candidates = [
-      '#sfx-toggle','#sound-toggle','#soundBtn','#btn-sfx','#btn-sound',
-      '[aria-label*="音效"]','[aria-label*="Sound"]','[title*="音效"]','[title*="Sound"]'
-    ];
-    for (const sel of candidates){
-      const el = document.querySelector(sel);
-      if (el) return el;
-    }
-    // fallback: search buttons by text
-    const btns = Array.from(document.querySelectorAll('button, [role="button"]'));
-    const test = (t)=> /音效|声音|Sound|SFX/i.test((t||'').trim());
-    for (const b of btns){
-      const t = (b.getAttribute('aria-label')||'') + ' ' + (b.textContent||'') + ' ' + (b.title||'');
-      if (test(t)) return b;
-    }
-    return null;
-  }
-
-  function alignTo(el){
-    const r = el.getBoundingClientRect();
-    // Place our panel just ABOVE and a little to the right of SFX button
-    const gap = 6;
-    const left = Math.max(10, r.left);
-    const bottom = Math.max(10, window.innerHeight - r.top + gap);
-    panel.style.position = 'fixed';
-    panel.style.left = left + 'px';
-    panel.style.bottom = bottom + 'px';
-  }
-
-  function tryAlign(){
-    const el = findSfxButton();
-    if (el){
-      alignTo(el);
-      // track movements (e.g., resize/orientation)
-      const realign = ()=> alignTo(el);
-      window.addEventListener('resize', realign);
-      window.addEventListener('orientationchange', realign);
-      // if page uses a virtual keyboard or scroll changes layout
-      window.addEventListener('scroll', realign, {passive:true});
-      return true;
-    }
-    return false;
-  }
-
-  // attempt immediately and after a short delay (in case UI lazy-renders)
-  if (!tryAlign()){
-    setTimeout(tryAlign, 600);
-    setTimeout(tryAlign, 1200);
-  }
 })();
 </script>
 
+
+<script id="bgm-ctrl-retry-2025-10-28">
+(function(){
+  const audio = document.getElementById('bgm-audio');
+  if(!audio) return;
+  const tryPlay = async ()=>{ try{ await audio.play(); }catch(e){} };
+  audio.addEventListener('canplay', tryPlay, {once:true});
+  audio.addEventListener('loadedmetadata', ()=> { /* metadata ready */ });
+  audio.addEventListener('error', ()=> console.warn('[BGM] element error, currentSrc=', audio.currentSrc));
+  // If our main controller exists, it will manage UI; if not, we still enable play on first gesture
+  const once = ()=>{ audio.play().catch(()=>{}); document.removeEventListener('click', once); };
+  document.addEventListener('click', once, {once:true});
+})();
+</script>
 
 </body>
 </html>
