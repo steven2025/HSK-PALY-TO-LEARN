@@ -1,0 +1,30 @@
+{
+  "name": "HSK Word Match Game",
+  "short_name": "HSK Game",
+  "description": "HSK/发展汉语 词汇配对小游戏 · 支持离线与添加到主屏幕",
+  "start_url": "./HSK_word_match_Game_V1_PWA.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#ff6a00",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
