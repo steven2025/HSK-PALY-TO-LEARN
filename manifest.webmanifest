@@ -2,7 +2,7 @@
   "name": "HSK Word Match Game",
   "short_name": "HSK Game",
   "description": "HSK/发展汉语 词汇配对小游戏 · 支持离线与添加到主屏幕",
-  "start_url": "./HSK_word_match_Game_V1_PWA.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#121212",
