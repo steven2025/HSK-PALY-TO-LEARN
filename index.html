@@ -5415,7 +5415,8 @@ window.startComposeLEVEL1Sandbox = startComposeLEVEL1Sandbox;
 <button id="install-btn" aria-label="安装应用">📲 安装 · 添加到主屏幕</button>
 <div id="ios-tip">在 Safari 中：点分享按钮 → 选择「添加到主屏幕」即可安装。</div>
 
-<script id="a2hs-logic">
+
+<script id="a2hs-logic-improved">
 (function(){
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches
@@ -5426,6 +5427,7 @@ window.startComposeLEVEL1Sandbox = startComposeLEVEL1Sandbox;
   const ua = navigator.userAgent;
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
   const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+  const isChromium = !!window.chrome && !isIOS;
 
   if (isStandalone()) {
     if (btn) btn.style.display = 'none';
@@ -5440,28 +5442,74 @@ window.startComposeLEVEL1Sandbox = startComposeLEVEL1Sandbox;
     if (btn) btn.style.display = 'flex';
   });
 
+  // Fallback: On Chromium, if no event within 2s, still show the button to guide users to use the browser menu.
+  setTimeout(() => {
+    if (!deferredPrompt && isChromium && btn) {
+      btn.style.display = 'flex';
+      btn.title = '若未弹出安装对话框，请在浏览器菜单中选择“安装应用/添加到任务栏”';
+    }
+  }, 2000);
+
+  function showGuideIfUnavailable(){
+    const guide = document.createElement('div');
+    guide.style.position = 'fixed';
+    guide.style.left = '50%';
+    guide.style.transform = 'translateX(-50%)';
+    guide.style.bottom = '72px';
+    guide.style.zIndex = '9999';
+    guide.style.background = 'rgba(0,0,0,.8)';
+    guide.style.color = '#fff';
+    guide.style.padding = '10px 14px';
+    guide.style.borderRadius = '10px';
+    guide.style.fontSize = '14px';
+    guide.style.maxWidth = '92vw';
+    guide.style.textAlign = 'center';
+    guide.textContent = isIOS
+      ? '在 Safari：点分享按钮 → 选择「添加到主屏幕」即可安装。'
+      : '在 Chrome/Edge：点击浏览器菜单 → 选择「安装应用」或地址栏的安装图标。';
+    document.body.appendChild(guide);
+    setTimeout(() => guide.remove(), 7000);
+  }
+
   if (btn) btn.addEventListener('click', async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       try { await deferredPrompt.userChoice; } catch (e) {}
       btn.style.display = 'none';
       deferredPrompt = null;
-    } else if (isIOS) {
-      iosTip.style.display = 'block';
-      setTimeout(()=> iosTip.style.display = 'none', 6000);
+    } else {
+      showGuideIfUnavailable();
     }
   });
 
   window.addEventListener('appinstalled', () => {
     if (btn) btn.style.display = 'none';
-    console.log('PWA installed');
+    console.log('[PWA] installed');
   });
 
   if (isIOS && isSafari) {
-    iosTip.style.display = 'block';
-    setTimeout(()=> iosTip.style.display = 'none', 6000);
+    // brief tip for iOS users
+    if (iosTip) {
+      iosTip.style.display = 'block';
+      setTimeout(()=> iosTip.style.display = 'none', 6000);
+    }
   }
 })();
+</script>
+
+
+
+<script id="sw-register">
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+      console.log('[PWA] SW registered:', reg);
+    } catch (err) {
+      console.warn('[PWA] SW registration failed:', err);
+    }
+  });
+}
 </script>
 
 </body>
