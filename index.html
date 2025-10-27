@@ -5423,14 +5423,22 @@ window.startComposeLEVEL1Sandbox = startComposeLEVEL1Sandbox;
 </script>
 
 
-<button id="install-btn" aria-label="安装应用">📲 安装 / 添加到主屏幕</button>
+<button id="install-btn" aria-label="安装应用">📲 安装 / 添加到主屏幕 · Install</button>
+
 <div id="ios-tip">
-  <span class="close">✕</span>
-  <div><b>iPhone / iPad 安装步骤：</b></div>
+  <span class="close" title="关闭 / Close">✕</span>
+  <div><b>iPhone / iPad 安装步骤 · How to install on iPhone/iPad</b></div>
+  <div>1) 使用 <b>Safari</b> 打开本页面（不要用微信/QQ内置浏览器）。<br>Open this page in <b>Safari</b> (not embedded browsers like WeChat/QQ).</div>
+  <div>2) 点底部 <b>分享</b> 按钮。<br>Tap the <b>Share</b> button.</div>
+  <div>3) 选择 <b>“添加到主屏幕”</b> → <b>添加</b>。<br>Choose <b>“Add to Home Screen”</b> → <b>Add</b>.</div>
+</div>
+
   <div>1) 使用 <b>Safari</b> 打开本页面（别用微信/QQ 内置浏览器）；</div>
   <div>2) 点底部 <b>分享</b> 按钮；</div>
   <div>3) 选择 <b>“添加到主屏幕”</b> → <b>添加</b>。</div>
 </div>
+
+
 
 <script id="a2hs-logic-unified">
 (function(){
@@ -5439,46 +5447,60 @@ window.startComposeLEVEL1Sandbox = startComposeLEVEL1Sandbox;
   const ua = navigator.userAgent;
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
   const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const isHuawei = /HUAWEI|HONOR|HarmonyOS|HMSCore|HWBrowser/i.test(ua);
   const isChromium = !!window.chrome && !isIOS;
   const inStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-  if (inStandalone) { btn?.style && (btn.style.display='none'); tip?.style && (tip.style.display='none'); return; }
+  function show(el){ if(el) el.style.display = 'flex'; }
+  function hide(el){ if(el) el.style.display = 'none'; }
 
+  if (inStandalone) { hide(btn); hide(tip); return; }
+
+  // iOS Safari: always show button and display bilingual guide
   if (isIOS && isSafari) {
-    btn.style.display = 'flex';
+    show(btn);
     btn.onclick = () => { tip.style.display = 'block'; };
-    tip.querySelector('.close').onclick = () => { tip.style.display = 'none'; };
+    const closeEl = tip.querySelector('.close');
+    if (closeEl) closeEl.onclick = () => { hide(tip); };
     return;
   }
 
+  // Android / Huawei: show button even if beforeinstallprompt never fires
   let deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    btn.style.display = 'flex';
+    show(btn);
   });
 
+  // Force show after 1s as a fallback (Huawei/embedded browsers)
   setTimeout(() => {
-    if (!deferredPrompt && isChromium) {
-      btn.style.display = 'flex';
-      btn.title = '若未弹出安装对话框，请在浏览器菜单中选择“安装应用/添加到主屏幕”。';
+    if (!deferredPrompt && (isAndroid || isHuawei || isChromium)) {
+      show(btn);
+      btn.title = '若未弹出安装对话框，请在浏览器菜单中选择“安装应用/添加到主屏幕”。\nIf no dialog appears, open the browser menu and choose “Install App / Add to Home screen”.';
     }
-  }, 2000);
+  }, 1000);
 
   btn.onclick = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       try { await deferredPrompt.userChoice; } catch(e) {}
-      btn.style.display = 'none';
+      hide(btn);
       deferredPrompt = null;
     } else {
-      alert('在 Chrome/Edge 菜单中选择“安装应用”或“添加到主屏幕”即可安装。若使用华为浏览器建议改用 Chrome。');
+      const msg = isHuawei
+        ? '华为浏览器：右上角菜单（三个点）→ “添加到桌面”/“安装应用”。若无此选项，请改用 Chrome。\n\nHuawei Browser: tap the menu (⋮) → “Add to desktop” / “Install app”. If not available, please try Chrome.'
+        : 'Chrome/Edge：菜单 → “安装应用”或“添加到主屏幕”。若是在微信/QQ内置浏览器，请改用系统浏览器。\n\nChrome/Edge: use the menu → “Install App” or “Add to Home screen”. If inside an embedded browser (WeChat/QQ), please open in the system browser.';
+      alert(msg);
     }
   };
 
-  window.addEventListener('appinstalled', () => { btn.style.display = 'none'; });
+  window.addEventListener('appinstalled', () => hide(btn));
 })();
 </script>
+
+
 
 
 <script id="sw-register">
