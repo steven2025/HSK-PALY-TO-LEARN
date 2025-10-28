@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>HSK单词游戏 · HSK Word Game (Fixed v5)</title>
+<title>HSK 游戏&学习 · HSK Play to Learn (Fixed v5)</title>
 <style>
 .lessons-grid-10{ display:grid; grid-template-columns: repeat(10, 1fr); gap:12px; }
 
@@ -85,7 +85,7 @@
     .module-title{ font-weight:900; font-size:28px; letter-spacing:.5px; background: linear-gradient(90deg, #1d2140, #193a59, #1d2140); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:none; }
     .subtitle{ font-size:14px; opacity:.7; }
 
-    .stage-actions{ display:grid; grid-template-columns: repeat(3, 1fr); gap:22px; }
+    .stage-actions{ display:grid; grid-template-columns: repeat(4, 1fr); gap:22px; }
     
     .action-btn{ --c1:#00d4ff; --c2:#0077ff; color:#0a1020; font-weight:900; font-size:18px; padding:24px 18px; border-radius:18px; border:none; cursor:pointer; user-select:none; box-shadow: 0 14px 0 rgba(0,0,0,.25), 0 22px 54px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.7); background-image: linear-gradient(180deg, rgba(255,255,255,.94), rgba(242,248,255,.99)), radial-gradient(140% 160% at -10% -10%, var(--c1) 0%, transparent 45%), radial-gradient(140% 160% at 110% 120%, var(--c2) 0%, transparent 45%); transition: transform .15s ease, box-shadow .15s ease; }
     .action-btn:hover{ transform: translateY(-4px); box-shadow: 0 16px 0 rgba(0,0,0,.26), 0 26px 64px rgba(0,0,0,.35); }
@@ -331,10 +331,14 @@ html { -webkit-text-size-adjust: 100%; }
 <body>
 <div class="container">
 <section class="hero" id="hero">
-<h1 class="title-cn glowtext">HSK单词游戏</h1>
-<h2 class="title-en glowtext">HSK Word Game</h2>
+<h1 class="title-cn glowtext">HSK 游戏&学习</h1>
+<h2 class="title-en glowtext">HSK Play to Learn</h2>
 <div class="top-actions">
 <div class="spacer"></div>
+<div style="position:relative; display:inline-block; margin-right:5px;">
+  <button class="btn" id="btnClearCache">清除缓存<br/>Clear Cache</button>
+  <div id="cacheTooltip" style="display:none; position:absolute; top:50%; right:100%; transform:translateY(-50%); margin-right:12px; background:#0b1220; color:#e9f1ff; padding:10px 14px; border-radius:8px; font-size:14px; line-height:1.4; box-shadow:0 4px 12px rgba(0,0,0,0.3); pointer-events:none; z-index:1000; width:200px; text-align:center;">提升游戏速度，不会删除游戏数据<br/>Boost game speed, won't delete game data</div>
+</div>
 <button aria-haspopup="dialog" class="btn" id="btnRegister">注册 Register</button>
 <button aria-haspopup="dialog" class="btn" id="btnLogin">登录 Login</button>
 <div class="audio-controls-wrapper" style="display:flex; flex-direction:column; gap:8px;">
@@ -396,32 +400,110 @@ html { -webkit-text-size-adjust: 100%; }
 </div>
 </div>
 </section>
-<section class="grid" id="menu">
-<div class="card red" data-key="dev-cn">
+<section id="menu" style="width: 75% !important; margin: 18px auto !important; padding: 0 !important; overflow: hidden !important;">
+<!-- 使用强制两列布局，总宽度为屏幕的75% -->
+<div style="width: 50% !important; float: left !important; padding: 0 11px !important; box-sizing: border-box !important;">
+<div class="card red" data-key="dev-cn" style="width: 100% !important; margin: 0 0 22px 0 !important; padding: 20px !important; box-sizing: border-box !important; min-height: 120px !important;">
 <div class="cn">发展汉语词汇</div>
 <div class="en">Developing Chinese Vocabulary</div>
 </div>
-<div class="card green" data-key="hsk">
+</div>
+<div style="width: 50% !important; float: left !important; padding: 0 11px !important; box-sizing: border-box !important;">
+<div class="card green" data-key="hsk" style="width: 100% !important; margin: 0 0 22px 0 !important; padding: 20px !important; box-sizing: border-box !important; min-height: 120px !important;">
 <div class="cn">HSK词汇</div>
 <div class="en">HSK Vocabulary</div>
 </div>
-<div class="card blue" data-key="fill">
+</div>
+<div style="clear: both !important;"></div>
+<div style="width: 50% !important; float: left !important; padding: 0 11px !important; box-sizing: border-box !important;">
+<div class="card blue" data-key="fill" style="width: 100% !important; margin: 0 0 22px 0 !important; padding: 20px !important; box-sizing: border-box !important; min-height: 120px !important;">
 <div class="cn">选词填空</div>
 <div class="en">Fill in the Blanks</div>
 </div>
-<div class="card amber" data-key="build">
+</div>
+<div style="width: 50% !important; float: left !important; padding: 0 11px !important; box-sizing: border-box !important;">
+<div class="card amber" data-key="build" style="width: 100% !important; margin: 0 0 22px 0 !important; padding: 20px !important; box-sizing: border-box !important; min-height: 120px !important;">
 <div class="cn">词语组句</div>
 <div class="en">Sentence Building</div>
 </div>
-<div class="card purple" data-key="order">
+</div>
+<div style="clear: both !important;"></div>
+<div style="width: 50% !important; float: left !important; padding: 0 11px !important; box-sizing: border-box !important;">
+<div class="card purple" data-key="order" style="width: 100% !important; margin: 0 0 22px 0 !important; padding: 20px !important; box-sizing: border-box !important; min-height: 120px !important;">
 <div class="cn">句子排序</div>
 <div class="en">Sentence Ordering</div>
 </div>
-<div class="card teal" data-key="banks">
+</div>
+<div style="width: 50% !important; float: left !important; padding: 0 11px !important; box-sizing: border-box !important;">
+<div class="card teal" data-key="banks" style="width: 100% !important; margin: 0 0 22px 0 !important; padding: 20px !important; box-sizing: border-box !important; min-height: 120px !important;">
 <div class="cn">获取词库和题库</div>
 <div class="en">Get Word &amp; Question Banks</div>
 </div>
+</div>
+<div style="clear: both !important;"></div>
 </section>
+
+<style>
+/* 确保卡片内容居中，并增大字体大小 */
+#menu .card .cn {
+  text-align: center !important;
+  margin: 8px 0 !important;
+  font-size: 1.2em !important; /* 增大20% */
+  font-weight: bold !important;
+}
+
+#menu .card .en {
+  text-align: center !important;
+  margin: 8px 0 !important;
+  font-size: 1.1em !important; /* 增大10%（英文相对较小，增大比例稍低） */
+}
+
+/* 根据屏幕宽度自适应字体大小，确保在任何屏幕上都保持双排 */
+@media (max-width: 768px) {
+  #menu .card .cn {
+    font-size: 1.15em !important;
+  }
+  #menu .card .en {
+    font-size: 1.05em !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #menu .card .cn {
+    font-size: 1.1em !important;
+  }
+  #menu .card .en {
+    font-size: 1em !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #menu .card {
+    padding: 15px !important;
+  }
+  #menu .card .cn {
+    font-size: 1.05em !important;
+  }
+  #menu .card .en {
+    font-size: 0.95em !important;
+  }
+  #menu > div {
+    padding: 0 8px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #menu .card {
+    padding: 12px !important;
+  }
+  #menu .card .cn {
+    font-size: 1em !important;
+  }
+  #menu .card .en {
+    font-size: 0.9em !important;
+  }
+}
+</style>
 <section aria-hidden="true" class="game" id="gameDemo">
 <div class="game-top">
 <div class="game-left">
@@ -478,8 +560,8 @@ html { -webkit-text-size-adjust: 100%; }
 <footer>
       Copyright Held by: Mr. Yan Qinghua, Chongqing Technology and Business University (CTBU)<br/>
       Support by: Teaching and Research Section of TCFL, CTBU<br/>
-     游戏版权持有人：重庆工商大学  鄢清华<br/>
-     感谢重庆工商大学对外汉语教研室的大力支持
+      游戏版权持有人： 鄢清华（重庆工商大学）<br/>
+      感谢重庆工商大学对外汉语教研室的大力支持
     </footer>
 </div>
 <dialog id="dlgRegister">
@@ -490,6 +572,9 @@ html { -webkit-text-size-adjust: 100%; }
 </label><br/><br/>
 <label>密码 Password<br/>
 <input id="regPass" minlength="4" required="" type="password"/>
+</label><br/><br/>
+<label>确认密码 Confirm Password<br/>
+<input id="regPassConfirm" minlength="4" required="" type="password"/>
 </label>
 <menu style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px;">
 <button class="btn" value="cancel">取消 Cancel</button>
@@ -607,6 +692,18 @@ VIEWS.forEach(function(k){
     const btnLogin = $('#btnLogin');
     const dlgRegister = $('#dlgRegister');
     const dlgLogin = $('#dlgLogin');
+    const btnClearCache = $('#btnClearCache');
+    const cacheTooltip = $('#cacheTooltip');
+    
+    // 清除缓存按钮提示框功能
+    btnClearCache.addEventListener('mouseenter', function() {
+      // 简单的显示逻辑，使用CSS定位代替JavaScript计算
+      document.getElementById('cacheTooltip').style.display = 'block';
+    });
+    
+    btnClearCache.addEventListener('mouseleave', () => {
+      cacheTooltip.style.display = 'none';
+    });
 
     function safeShowModal(d){
       if(!d.open){ try{ d.showModal(); }catch{ d.setAttribute('open',''); } }
@@ -638,7 +735,16 @@ VIEWS.forEach(function(k){
       e.preventDefault();
       const name = $('#regName').value.trim();
       const pass = $('#regPass').value;
+      const confirmPass = $('#regPassConfirm').value;
+      
       if(!name || !pass) return;
+      
+      // 验证密码是否一致
+      if(pass !== confirmPass) {
+        showToast('两次输入的密码不一致 / Passwords do not match','error');
+        return;
+      }
+      
       const users = store.users;
       if(users[name]){ showToast('用户名已存在 / Username exists','error'); return; }
       users[name] = { password: pass };
@@ -653,7 +759,11 @@ VIEWS.forEach(function(k){
       const name = $('#logName').value.trim();
       const pass = $('#logPass').value;
       const users = store.users;
-      if(!users[name] || users[name].password !== pass){ showToast('用户或密码错误 / Invalid credentials','error'); return; }
+      if(!users[name] || users[name].password !== pass){ 
+        showToast('用户或密码错误 / Invalid credentials','error'); 
+        safeClose(dlgLogin); // 登录失败时也关闭对话框
+        return; 
+      }
       store.session = { username: name };
       safeClose(dlgLogin); refreshAuthUI();
       showToast('登录成功 / Signed in','success');
@@ -727,7 +837,7 @@ VIEWS.forEach(function(k){
       stage.dataset.key = key;
       btnClearTrial.style.display = store.trial ? 'inline-block':'none';
     }
-    function backHome(){ stage.style.display='none'; menu.style.display='grid'; }
+    function backHome(){ stage.style.display='none'; menu.style.display='block'; }
 
     document.querySelectorAll('#menu .card').forEach(c=>{
       c.addEventListener('mousemove',(e)=>{
@@ -876,7 +986,15 @@ const LESSON_URL = {
       else { document.body.classList.add('subflow'); }
     }
     // Ensure on load we show menu only
-    window.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('langChooser')?.remove(); showSection('menu'); });
+    window.addEventListener('DOMContentLoaded', ()=>{ 
+      document.getElementById('langChooser')?.remove(); 
+      showSection('menu'); 
+      // 为清除缓存按钮添加事件监听器
+      document.getElementById('btnClearCache')?.addEventListener('click', () => {
+        playSfx('click');
+        clearCache();
+      });
+    });
 
 // --- Subflow: hide welcome/logout/sound in levels/lessons/game ---
 
@@ -1024,7 +1142,7 @@ const LESSON_URL = {
     async function startFromExternal(url){
       try{
         showToast('正在加载词库… / Loading word bank…','info');
-        const resp = await fetch(url, {cache:'no-store'});
+        const resp = await fetchWithRetry(url, {});
         if(!resp.ok){ throw new Error('HTTP ' + resp.status); }
         var _lp=document.getElementById('dev-levelsPanel'); if(_lp) _lp.style.display='none';
         var _les=document.getElementById('dev-lessonsPanel'); if(_les) _les.style.display='none';
@@ -1857,7 +1975,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         (async function(u){
           try{
             toast('正在加载词库… / Loading word bank…','info');
-            var r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status);
+            var r=await fetchWithRetry(u, {}); if(!r.ok) throw new Error('HTTP '+r.status);
             var text=await r.text();
             if(typeof window.parseTrial!=='function'||typeof window.mapParsedToTarget!=='function')
               throw new Error('parseTrial/mapParsedToTarget missing');
@@ -1974,7 +2092,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     // Fallback: fetch + parseTrial/mapParsedToTarget + resetAndStartFromTrial
     try{
       toast('正在加载HSK1词库… / Loading HSK1…','info');
-      var resp = await fetch(HSK1_URL, {cache:'no-store'});
+      var resp = await fetchWithRetry(HSK1_URL, {});
       if(!resp.ok) throw new Error('HTTP ' + resp.status);
       var text = await resp.text();
 
@@ -2036,7 +2154,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       try{
         window.__ctx='hsk'; window.__lastGameContext='hsk';
         toast('正在加载词库… / Loading word bank…','info');
-        var resp = await fetch(url, {cache:'no-store'});
+        var resp = await fetchWithRetry(url, {});
         if(!resp.ok) throw new Error('HTTP '+resp.status);
         var text = await resp.text();
         if(typeof window.parseTrial!=='function' || typeof window.mapParsedToTarget!=='function')
@@ -2263,7 +2381,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         (async function(u){
           try{
             toast('正在加载HSK2… / Loading HSK2','info');
-            var r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status);
+            var r=await fetchWithRetry(u, {}); if(!r.ok) throw new Error('HTTP '+r.status);
             var t=await r.text();
             var rows=String(t).split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
             var sep=/\t/.test(rows[0])?'\t':',';
@@ -2351,7 +2469,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         window.__ctx='hsk'; window.__lastGameContext='hsk';
         var ov=$id('hskOverlay'); if(ov) ov.style.display='none';
         toast('正在加载词库…','info');
-        var r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status);
+        var r=await fetchWithRetry(url, {}); if(!r.ok) throw new Error('HTTP '+r.status);
         var t=await r.text();
         var rows=String(t).split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
         var sep=/\t/.test(rows[0])?'\t':',';
@@ -2979,7 +3097,7 @@ window.FillLevel = (function(){
     if (levelKey === 'L1'){
       const url = 'https://raw.githubusercontent.com/steven2025/gif2025/refs/heads/main/25-10-23%E6%96%B0-%E5%A1%AB%E7%A9%BA%E9%A2%98Level1-6%E8%AF%AD.txt';
       try{
-        const res = await fetch(url);
+        const res = await fetchWithRetry(url, {});
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
         if (window.FillDemo && typeof window.FillDemo.startDemo === 'function') {
@@ -3016,7 +3134,7 @@ window.startFillDemo = function(){
     // If there is default embedded dataset, you could set window.__FILL_OVERRIDE__ before calling this.
     if (!window.__FILL_OVERRIDE__){
       // fallback to Level1 loader
-      (async function(){try{const r=await fetch('https://raw.githubusercontent.com/steven2025/gif2025/refs/heads/main/%E5%A1%AB%E7%A9%BA%E8%AF%95%E7%8E%A9-%E8%AF%95%E9%A2%98%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF-%E5%B8%A6%E8%A7%A3%E6%9E%90.txt'); if(r.ok){ const t=await r.text(); window.__FILL_OVERRIDE__=t; window.FillDemo&&window.FillDemo.startDemo&&window.FillDemo.startDemo(t); return; } }catch(_e){ console.warn('Demo FR fetch failed, fallback to Level1', _e); } window.FillLevel && window.FillLevel.start && window.FillLevel.start('L1'); })();
+      (async function(){try{const r=await fetchWithRetry('https://raw.githubusercontent.com/steven2025/gif2025/refs/heads/main/%E5%A1%AB%E7%A9%BA%E8%AF%95%E7%8E%A9-%E8%AF%95%E9%A2%98%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF-%E5%B8%A6%E8%A7%A3%E6%9E%90.txt', {}); if(r.ok){ const t=await r.text(); window.__FILL_OVERRIDE__=t; window.FillDemo&&window.FillDemo.startDemo&&window.FillDemo.startDemo(t); return; } }catch(_e){ console.warn('Demo FR fetch failed, fallback to Level1', _e); } window.FillLevel && window.FillLevel.start && window.FillLevel.start('L1'); })();
       return;
     }
     window.FillDemo.startDemo(window.__FILL_OVERRIDE__);
@@ -4007,7 +4125,7 @@ Tip: classifier→套; frequency→每; repetition→又
         if (levelKey === 'L1') {
           const url = 'https://raw.githubusercontent.com/steven2025/gif2025/refs/heads/main/25-10-23%E6%96%B0-%E5%A1%AB%E7%A9%BA%E9%A2%98Level1-6%E8%AF%AD.txt';
           try{ 
-            const res = await fetch(url, {cache:'no-store'});
+            const res = await fetchWithRetry(url, {});
             if (!res.ok) throw new Error('HTTP '+res.status);
             const text = await res.text();
             window.startFillDemo(text);
@@ -4108,7 +4226,7 @@ Tip: classifier→套; frequency→每; repetition→又
         if (levelKey==='L1'){
           const url = 'https://raw.githubusercontent.com/steven2025/gif2025/refs/heads/main/25-10-23%E6%96%B0-%E5%A1%AB%E7%A9%BA%E9%A2%98Level1-6%E8%AF%AD.txt';
           try{
-            const res = await fetch(url,{cache:'no-store'});
+            const res = await fetchWithRetry(url, {});
             if (!res.ok) throw new Error('HTTP '+res.status);
             const text = await res.text();
             window.startFillDemo(text);
@@ -4249,7 +4367,7 @@ Tip: classifier→套; frequency→每; repetition→又
   var _orig = window.startFillDemo;
   window.startFillDemo = async function(){
     try{ 
-      var r = await fetch(DEMO_URL);
+      var r = await fetchWithRetry(DEMO_URL, {});
       if(!r.ok) throw new Error('HTTP '+r.status);
       var text = await r.text();
       if (window.FillDemo && typeof window.FillDemo.startDemo === 'function'){
@@ -5483,7 +5601,7 @@ function parseLevel1Text(txt) {
   async function startComposeLEVEL1Sandbox() {
     try {
       showToastMini('正在加载 LEVEL1 题库…','Loading Level 1 bank…');
-      const resp = await fetch(LEVEL1_BANK_URL, { cache: 'no-store' });
+      const resp = await fetchWithRetry(LEVEL1_BANK_URL, {});
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const text = await resp.text();
       const data = parseLevel1Text(text);
@@ -5781,4 +5899,77 @@ if ('serviceWorker' in navigator) {
 
 
 </body>
+
+    <!-- 缓存优化函数 -->
+    <script>
+    // 添加带本地缓存的fetch函数
+    async function fetchWithCache(url, options = {}) {
+      // 为URL生成一个唯一的缓存键
+      const cacheKey = 'cache_' + btoa(url);
+      
+      try {
+        // 尝试从localStorage获取缓存
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const {content, timestamp, etag} = JSON.parse(cached);
+          // 缓存有效期24小时
+          const cacheExpiry = 24 * 60 * 60 * 1000;
+          
+          if (Date.now() - timestamp < cacheExpiry) {
+            console.log('使用缓存数据:', url);
+            // 模拟Response对象
+            return {
+              ok: true,
+              text: async () => content,
+              json: async () => JSON.parse(content)
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('缓存读取失败:', e);
+      }
+      
+      // 缓存不存在或已过期，执行网络请求
+      console.log('从网络加载:', url);
+      const response = await fetch(url, {...options, cache: 'default'});
+      
+      if (response.ok) {
+        try {
+          // 保存到缓存
+          const content = await response.clone().text();
+          localStorage.setItem(cacheKey, JSON.stringify({
+            content,
+            timestamp: Date.now()
+          }));
+        } catch (e) {
+          console.warn('缓存写入失败:', e);
+        }
+      }
+      
+      return response;
+    }
+    
+    // 添加重试机制
+    async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          return await fetchWithCache(url, options);
+        } catch (err) {
+          if (i === retries - 1) throw err;
+          console.warn(`请求失败，${delay * (i + 1)}ms后重试...`, err);
+          await new Promise(r => setTimeout(r, delay * (i + 1)));
+        }
+      }
+    }
+    
+    // 清除缓存的辅助函数
+    function clearCache() {
+      for (let key in localStorage) {
+        if (key.startsWith('cache_')) {
+          localStorage.removeItem(key);
+        }
+      }
+      showToast('缓存已清除 / Cache cleared','success');
+    }
+    </script>
 </html>
