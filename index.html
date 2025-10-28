@@ -5648,7 +5648,7 @@ if ('serviceWorker' in navigator) {
 
 
 
-<audio id="bgm-audio" preload="auto" loop playsinline webkit-playsinline>
+<audio id="bgm-audio" preload="auto" loop playsinline webkit-playsinline crossOrigin="anonymous">
     <source src="./audio/水墨.MP3" type="audio/mpeg">
     <source src="./audio/bgm.mp3" type="audio/mpeg">
   </audio>
@@ -5688,7 +5688,7 @@ if ('serviceWorker' in navigator) {
   });
 
   slider.addEventListener('input', () => {
-    const v = Math.Math.max(0, Math.Math.min(100, parseInt(slider.value || '0', 10))) / 100;
+    const v = Math.max(0, Math.min(100, parseInt(slider.value || '0', 10))) / 100;
     audio.volume = v;
     localStorage.setItem(KEY_VOL, String(v));
   });
