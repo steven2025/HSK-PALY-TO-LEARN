@@ -491,9 +491,7 @@ html { -webkit-text-size-adjust: 100%; }
 </section>
 <footer>
       Copyright Held by: Mr. Yan Qinghua, Chongqing Technology and Business University (CTBU)<br/>
-      Support by: Teaching and Research Section of TCFL, CTBU<br/>
-      游戏版权持有人：重庆工商大学 鄢清华<br/>
-      感谢重庆工商大学对外汉语教研室的大力支持
+      Support by: Teaching and Research Section of TCFL, CTBU
     </footer>
 </div>
 <dialog id="dlgRegister">
@@ -4557,12 +4555,18 @@ Tips:
 ພາກສະແດງ: “很好吃” ຢູ່ທ້າຍປະໂຫຍກ` } }
   ];
 
-  function ensureMount(){
+  function ensureMount() {
     const stage = document.getElementById('stage');
-    if(!stage) return null;
-
+    if (!stage) return null;
+    
+    // 移除现有的sb-embed元素，确保每次都创建全新的UI
+    const oldEmbed = document.getElementById('sb-embed');
+    if (oldEmbed) {
+      stage.removeChild(oldEmbed);
+    }
+    
     let embed = document.getElementById('sb-embed');
-    if(!embed){
+    if (!embed) {
       embed = document.createElement('div');
       embed.id = 'sb-embed';
       embed.innerHTML = `
@@ -4644,8 +4648,12 @@ Tips:
       pool.appendChild(d);
     });
 
-    cur.textContent = String(idx+1); curEn.textContent = String(idx+1);
-    tot.textContent = String(BANK.length); totEn.textContent = String(BANK.length);
+    // 安全地设置进度文本，检查元素是否存在
+    if (cur) cur.textContent = String(idx+1);
+    if (curEn) curEn.textContent = String(idx+1);
+    // 安全地设置总数文本，检查元素是否存在
+    if (tot) tot.textContent = String(BANK.length);
+    if (totEn) totEn.textContent = String(BANK.length);
   }
   function seqInSlot(){ return Array.from(document.querySelectorAll('#sb-slot .sb-tile')).map(n=>n.dataset.token); }
   function flyBack(){
@@ -4656,10 +4664,26 @@ Tips:
     setTimeout(()=>{ ch.forEach(n=>{ n.classList.remove('sb-flyback'); document.getElementById('sb-pool').appendChild(n); }); slot.classList.remove('sb-shake'); }, 420);
   }
   function showPanel(lang='英文'){
-    const p=document.getElementById('sb-panel'), body=document.getElementById('sb-body');
-    document.querySelectorAll('#sb-embed .sb-tab').forEach(t=> t.classList.toggle('active', t.dataset.lang===lang));
-    body.textContent = BANK[idx].analysis[lang] || '（无该语言解析 No analysis in this language）';
-    p.style.display='block';
+    // 确保使用试玩模式的正确元素
+    const p=document.getElementById('sb-panel');
+    const body=document.getElementById('sb-body');
+    
+    if(p && body) {
+      // 更新答案解析框标题
+      const title = p.querySelector('div[style*="font-weight:900"]');
+      if(title) {
+        title.textContent = '答案解析 · Explanation';
+      }
+      
+      // 正确切换标签页
+      document.querySelectorAll('#sb-embed .sb-tab').forEach(t=> t.classList.toggle('active', t.dataset.lang===lang));
+      
+      // 设置解析内容
+      body.textContent = BANK[idx]?.analysis[lang] || '（无该语言解析 No analysis in this language）';
+      
+      // 显示面板
+      p.style.display='block';
+    }
   }
   function showToast(msgCN, msgEN, ok=true){
     const el = document.getElementById('sb-toast');
@@ -4704,9 +4728,16 @@ Tips:
         if(node){ pool.appendChild(node); }
       });
 
-      $('#sb-prev').onclick = ()=>{ if(idx>0){ idx--; render(); } };
-      $('#sb-next').onclick = ()=>{ if(idx<BANK.length-1){ idx++; render(); } };
-      $('#sb-confirm').onclick = ()=>{
+      // 使用原生JavaScript并添加安全检查
+      const prevBtn = document.getElementById('sb-prev');
+      const nextBtn = document.getElementById('sb-next');
+      const confirmBtn = document.getElementById('sb-confirm');
+      const closeBtn = document.getElementById('sb-close');
+      const backBtn = document.getElementById('sb-back');
+      
+      if (prevBtn) prevBtn.onclick = ()=>{ if(idx>0){ idx--; render(); } };
+      if (nextBtn) nextBtn.onclick = ()=>{ if(idx<BANK.length-1){ idx++; render(); } };
+      if (confirmBtn) confirmBtn.onclick = ()=>{
         const seq = seqInSlot(), ans = BANK[idx].answerTokens;
         if(seq.length!==ans.length){ showToast('答错了','Incorrect!',false); flyBack(); return; }
         const ok = seq.every((t,i)=> t===ans[i]);
@@ -4714,10 +4745,24 @@ Tips:
         showToast('答对了','Correct!',true);
         setTimeout(()=> showPanel('英文'), 200);
       };
-      $('#sb-close').onclick = ()=> $('#sb-panel').style.display='none';
-      $('#sb-back').onclick = ()=>{ $('#sb-panel').style.display='none'; document.getElementById('sb-embed').style.display='none'; showMenuRow(); };
-      $$('#sb-embed .sb-tab').forEach(tab=>{
-        tab.onclick = ()=>{ $$('#sb-embed .sb-tab').forEach(x=> x.classList.remove('active')); tab.classList.add('active'); $('#sb-body').textContent = BANK[idx].analysis[tab.dataset.lang] || '（无该语言解析）'; };
+      if (closeBtn) closeBtn.onclick = ()=> {
+        const panel = document.getElementById('sb-panel');
+        if (panel) panel.style.display='none';
+      };
+      if (backBtn) backBtn.onclick = ()=>{
+        const panel = document.getElementById('sb-panel');
+        const embed = document.getElementById('sb-embed');
+        if (panel) panel.style.display='none';
+        if (embed) embed.style.display='none';
+        showMenuRow();
+      };
+      document.querySelectorAll('#sb-embed .sb-tab').forEach(tab=>{
+          tab.onclick = ()=>{ 
+            document.querySelectorAll('#sb-embed .sb-tab').forEach(x=> x.classList.remove('active'));
+            tab.classList.add('active'); 
+            const body = document.getElementById('sb-body');
+            if (body) body.textContent = BANK[idx]?.analysis[tab.dataset.lang] || '（无该语言解析）'; 
+          };
       });
 
       document.getElementById('sb-levels').style.display='none';
@@ -5011,17 +5056,29 @@ Tips:
   
 
 
-function ensureSBScaffold() {
+function ensureSBScaffold(isDemo = false) {
   const stage = document.getElementById('stage');
   if (!stage) return null;
+  
+  // 对于LEVEL1模式，总是重新创建UI，避免与试玩模式冲突
+  if (!isDemo) {
+    // 移除现有的sb-embed元素
+    const oldEmbed = document.getElementById('sb-embed');
+    if (oldEmbed) {
+      stage.removeChild(oldEmbed);
+    }
+  }
+  
   let embed = document.getElementById('sb-embed');
   if (!embed) {
     embed = document.createElement('div');
     embed.id='sb-embed';
+    // 根据是否为试玩模式设置不同的标题
+    const title = isDemo ? '词语组句 · 试玩游戏 / Sentence Building · Demo' : '词语组句 · LEVEL1';
     embed.innerHTML = `
       <div class="sb-top">
         <div class="sb-topbar">
-          <div style="font-weight:900;">词语组句 · LEVEL1</div>
+          <div style="font-weight:900;">${title}</div>
           <button class="sb-mini" id="sb-back">返回上一级 / Back</button>
         </div>
         <div class="sb-ins">
@@ -5056,6 +5113,24 @@ function ensureSBScaffold() {
       </div>`;
     stage.appendChild(embed);
   } else {
+    // 根据是否为试玩模式设置不同的标题
+    const titleElement = embed.querySelector('.sb-topbar div[style*="font-weight:900"]');
+    if (titleElement) {
+      const title = isDemo ? '词语组句 · 试玩游戏 / Sentence Building · Demo' : '词语组句 · LEVEL1';
+      titleElement.textContent = title;
+    }
+    
+    // 更新说明文字
+    const insElement = embed.querySelector('.sb-ins div:not(small)');
+    if (insElement) {
+      insElement.textContent = '请把上面的词语按正确顺序拖入下方方框。';
+    }
+    
+    const insSmallElement = embed.querySelector('.sb-ins small');
+    if (insSmallElement) {
+      insSmallElement.textContent = 'Drag words into the slot below to form a correct sentence.';
+    }
+    
     // Reuse an existing toolbar if any, and remove duplicates
     const bars = embed.querySelectorAll('.sb-toolbar');
     if (bars.length > 0) {
@@ -5200,7 +5275,8 @@ function parseLevel1Text(txt) {
 
 
   function mountSBGame(data) {
-    const stage = ensureSBScaffold(); if (!stage) return;
+    // 对于LEVEL1模式，传递false作为isDemo参数
+  const stage = ensureSBScaffold(false); if (!stage) return;
     const embed = document.getElementById('sb-embed');
     // Only keep the first toolbar if multiple exist
     (function(){
@@ -5352,21 +5428,64 @@ function parseLevel1Text(txt) {
       const ok = seq.every((t,i)=> t===item.answerTokens[i]);
       if(!ok) { showToastMini('答错了','Incorrect!', false); flyBack(); return; }
       showToastMini('答对了','Correct!', true);
-      const zh = item.analysis['中文'] || '';
-      if (zh) {
-        content.innerHTML = zh.replace(/\n/g,'<br/>');
-        panel.style.display='block';
+      
+      // 显示答案解析
+      const lang = '中文'; // 默认显示中文
+      const text = item.analysis[lang] || '（该题暂无解析）';
+      
+      // 使用cleanLangBlock函数过滤混合语言内容，避免重复显示
+      const filteredText = cleanLangBlock(text, lang);
+      content.innerHTML = filteredText.replace(/\n/g,'<br/>');
+      panel.style.display='block';
+      
+      // 更新或隐藏sb-body元素，移除"加载中…"提示
+      const sbBody = document.getElementById('sb-body');
+      if (sbBody) {
+        sbBody.textContent = '';
       }
+      
+      // 设置当前活动标签为中文，与全局标签点击绑定协同工作
+      document.querySelectorAll('#sb-panel .sb-tab').forEach(tab => {
+        if (tab.dataset.lang === lang) {
+          tab.classList.add('active');
+          // 更新全局活动语言
+          if (typeof window.sbSetActiveLang === 'function') {
+            window.sbSetActiveLang(lang);
+          }
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+      
+      // 为标签绑定数据上下文，确保点击时使用当前题目的数据
+      document.querySelectorAll('#sb-panel .sb-tab').forEach(tab => {
+        // 存储当前题目的引用，避免引用全局BANK变量
+        tab._currentItem = item;
+      });
     };
     })();
 
     document.getElementById('sb-back').onclick = ()=>{
       embed.style.display='none';
+      panel.style.display='none'; // 确保返回时隐藏解析面板
+      // 清除标签上的_currentItem，避免模式切换时的数据干扰
+      document.querySelectorAll('#sb-panel .sb-tab').forEach(tab => {
+        delete tab._currentItem;
+      });
       document.getElementById('sb-confirm').onclick = prevHandlers.confirm;
       document.getElementById('sb-prev').onclick = prevHandlers.prev;
       document.getElementById('sb-next').onclick = prevHandlers.next;
       document.getElementById('sb-back').onclick = prevHandlers.back;
       try { const row = document.querySelector('.stage-actions'); if(row) row.style.display=''; }catch(_){}
+    };
+    
+    // 添加关闭解析面板按钮的事件处理
+    document.getElementById('sb-close').onclick = () => {
+      panel.style.display = 'none';
+      // 清除标签上的_currentItem，避免模式切换时的数据干扰
+      document.querySelectorAll('#sb-panel .sb-tab').forEach(tab => {
+        delete tab._currentItem;
+      });
     };
 
     render();
@@ -5493,11 +5612,27 @@ window.startComposeLEVEL1Sandbox = startComposeLEVEL1Sandbox;
     document.querySelectorAll('#sb-panel .sb-tab').forEach(btn=>{
       if (btn.__sbBound) return;
       btn.__sbBound = true;
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', function(){        
         var L = this.dataset.lang || '中文';
         if (typeof window.sbSetActiveLang==='function') window.sbSetActiveLang(L);
         var c = document.getElementById('sb-content');
-        if (c){ if (typeof window.sbFilterByLang==='function' && c){ c.innerHTML = window.sbFilterByLang(c.innerText, L).replace(/\n/g,'<br/>'); } }
+        if (c) {
+          // 优先使用存储在标签上的当前题目数据（LEVEL1模式）
+          if (this._currentItem && this._currentItem.analysis) {
+            // 确保LEVEL1模式总是使用自己的数据，不受试玩模式影响
+            const text = this._currentItem.analysis[L] || '（该语言暂无解析）';
+            // 过滤混合语言内容，避免重复显示
+            const filteredText = typeof cleanLangBlock === 'function' ? 
+              cleanLangBlock(text, L) : text;
+            c.innerHTML = filteredText.replace(/\n/g,'<br/>');
+          } else if (typeof window.sbFilterByLang==='function') {
+            // 试玩模式：只有在没有_currentItem时才使用试玩模式的解析逻辑
+            c.innerHTML = window.sbFilterByLang(c.innerText, L).replace(/\n/g,'<br/>');
+          } else {
+            // 当没有当前题目数据且没有sbFilterByLang函数时，显示提示消息
+            c.innerHTML = '（当前题目暂无解析数据）'.replace(/\n/g,'<br/>');
+          }
+        }
         document.querySelectorAll('#sb-panel .sb-tab').forEach(x=>{
           if (x===this) x.classList.add('active'); else x.classList.remove('active');
         });
