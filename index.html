@@ -61,7 +61,7 @@
     .switch.on::after{ left:29px; }
     .volume{ accent-color:#7afcff; width:80px; height:4px; }
     .label{ font-size:12px; opacity:.92; }
-    .sound-label, .bgm-control{ font-size:12px; }
+    .sound-label{ font-size:12px; }
 
     .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:22px; margin-top:18px; }
     .grid .span2{ grid-column: span 2; }
@@ -213,7 +213,7 @@
 .subflow #btnRegister,
 .subflow #btnLogin,
 .subflow .sound-wrap { display: none !important; }
-.subflow .audio-controls-wrapper #bgm-panel { display:flex !important; }
+
 
 .levels-panel, .lessons-panel { max-width: 1200px; margin-left:auto; margin-right:auto; }
 .levels-panel .levels-grid,
@@ -325,19 +325,7 @@ html { -webkit-text-size-adjust: 100%; }
 </style>
 
 
-<style id="bgm-style-2025-10-28">
-  #bgm-toggle{
-    border: none; border-radius: 999px;
-    background: #222; color: #fff; cursor: pointer; opacity: .9;
-  }
-  #bgm-toggle:hover{ opacity: 1; }
-  #bgm-panel{
-    background: rgba(0,0,0,.75); color:#fff; padding: 8px 10px; border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.25);
-  }
-  #bgm-volume{ width: 80px; height: 4px; accent-color: #ff6a00; }
-    #bgm-toggle{ font-size:12px; padding:4px 8px; }
-</style>
+
 
 </head>
 <body>
@@ -355,9 +343,7 @@ html { -webkit-text-size-adjust: 100%; }
 <div aria-checked="false" class="switch" id="soundSwitch" role="switch" tabindex="0"></div>
 <input aria-label="音量 Volume" class="volume" id="volume" max="1" min="0" step="0.01" type="range" value="0.6"/>
 </div>
-<div id="bgm-panel" role="group" aria-label="背景音乐控制 / BGM Controls" style="display:flex; align-items:center; gap:8px;">
-  <button id="bgm-toggle" aria-label="音乐开关 / Music" class="bgm-control">🔈 开启音乐 · Music</button>
-  <input id="bgm-volume" type="range" min="0" max="100" step="1" value="40" aria-label="音量 Volume">
+
 </div>
 </div>
 <div class="levels-panel" id="dev-levelsPanel">
@@ -5785,67 +5771,12 @@ if ('serviceWorker' in navigator) {
 
 
 
-<audio id="bgm-audio" preload="auto" loop playsinline webkit-playsinline crossOrigin="anonymous">
-    <source src="./audio/水墨.MP3" type="audio/mpeg">
-    <source src="./audio/bgm.mp3" type="audio/mpeg">
-  </audio>
-
-<script id="bgm-ctrl-2025-10-28">
-(function(){
-  const audio = document.getElementById('bgm-audio');
-  const toggle = document.getElementById('bgm-toggle');
-  const slider = document.getElementById('bgm-volume');
-  if(!audio || !toggle || !slider) return;
-
-  const KEY_ON = 'hsk_bgm_on';
-  const KEY_VOL = 'hsk_bgm_vol';
-
-  let on = localStorage.getItem(KEY_ON) === '1';
-  let vol = parseFloat(localStorage.getItem(KEY_VOL) || '0.4');
-  if (Number.isNaN(vol)) vol = 0.4;
-  audio.volume = Math.min(1, Math.max(0, vol));
-  try { slider.value = String(Math.round(audio.volume * 100)); } catch(e) { slider.value = '40'; }
-
-  function label(){ toggle.textContent = on ? '🔊 关闭音乐 · Mute' : '🔈 开启音乐 · Music'; }
-  label();
-
-  async function safePlay(){ try { await audio.play(); } catch(e) {} }
-
-  const onceStart = () => { if(on) safePlay(); document.removeEventListener('click', onceStart); };
-  document.addEventListener('click', onceStart, {once:true});
-
-  document.addEventListener('WeixinJSBridgeReady', () => { if(on) safePlay(); }, false);
-  document.addEventListener('YixinJSBridgeReady',  () => { if(on) safePlay(); }, false);
-
-  document.addEventListener('visibilitychange', () => { if(document.hidden){ audio.pause(); } else if(on){ safePlay(); } });
-
-  toggle.addEventListener('click', async () => {
-    on = !on; localStorage.setItem(KEY_ON, on ? '1':'0'); label();
-    if(on){ await safePlay(); } else { audio.pause(); }
-  });
-
-  slider.addEventListener('input', () => {
-    const v = Math.max(0, Math.min(100, parseInt(slider.value || '0', 10))) / 100;
-    audio.volume = v;
-    localStorage.setItem(KEY_VOL, String(v));
-  });
-})();
-</script>
 
 
-<script id="bgm-ctrl-retry-2025-10-28">
-(function(){
-  const audio = document.getElementById('bgm-audio');
-  if(!audio) return;
-  const tryPlay = async ()=>{ try{ await audio.play(); }catch(e){} };
-  audio.addEventListener('canplay', tryPlay, {once:true});
-  audio.addEventListener('loadedmetadata', ()=> { /* metadata ready */ });
-  audio.addEventListener('error', ()=> console.warn('[BGM] element error, currentSrc=', audio.currentSrc));
-  // If our main controller exists, it will manage UI; if not, we still enable play on first gesture
-  const once = ()=>{ audio.play().catch(()=>{}); document.removeEventListener('click', once); };
-  document.addEventListener('click', once, {once:true});
-})();
-</script>
+
+
+
+
 
 </body>
 </html>
