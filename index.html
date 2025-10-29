@@ -327,6 +327,109 @@ html { -webkit-text-size-adjust: 100%; }
 
 
 
+<style id="sb_fill_patch_20251029">
+
+/* === Patch: 选词填空(UI tweak, 2025-10-29) === */
+/* 1) Remove shadows only for the Fill-in-the-Blanks stage (uses modern :has()) */
+section.stage:has(#sb-embed), 
+#sb-panel, #sb-embed, #sb-body, #sb-levels, #sb-toast {
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* 2) Enlarge top game buttons by 20% & center toolbar; keep adaptive spacing */
+#sb-toolbar, #sb-topbar {
+  justify-content: center !important;
+  gap: clamp(10px, 2.2vw, 18px) !important;
+  margin: clamp(8px, 1.8vw, 18px) auto !important;
+  width: fit-content !important;
+}
+#sb-toolbar .sb-mini, #sb-topbar .sb-mini, 
+#sb-toolbar button, #sb-topbar button {
+  font-size: 120% !important;
+  line-height: 1.15 !important;
+  padding: calc(10px * 1.1) calc(12px * 1.2) !important;
+}
+
+/* 3) Ensure the main embed panel stays centered */
+#sb-embed { margin-left:auto !important; margin-right:auto !important; }
+
+</style>
+<style id="fill_demo_patch_v3">
+
+/* === Patch v3: Fill DEMO (no background shadow, centered top controls, 120% font) === */
+#fillDemoScreen { background: rgba(10,14,25,.60); } /* keep overlay, but tweak below */
+#fillDemoArea, #fillLevelBox {
+  /* remove all drop-shadows on the canvas panels */
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+/* make inner sentence cards flatter too */
+.fill-sentence { box-shadow: none !important; }
+/* center the header and buttons; keep adaptive spacing */
+#fillDemoHeader { 
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(6px, 1.8vh, 14px) !important;
+  margin: clamp(6px, 2.5vh, 20px) auto clamp(6px, 2.2vh, 18px) auto !important;
+}
+#fillDemoHeader .fill-title { 
+  text-align: center !important; 
+}
+#fillDemoHeader .fill-controls { 
+  display: flex !important; 
+  justify-content: center !important; 
+  flex-wrap: wrap !important; 
+  gap: clamp(6px, 1.4vw, 12px) !important; 
+}
+/* enlarge top buttons by ~20% */
+#fillDemoHeader .fill-btn { 
+  font-size: 120% !important; 
+  line-height: 1.15 !important;
+  padding: calc(10px * 1.05) calc(14px * 1.15) !important;
+}
+
+</style>
+<style id="fill_demo_patch_v4">
+
+/* === Patch v4: Hide page behind the game (opaque backdrop) === */
+#fillDemoScreen, #hskOverlay {
+  background: #0b1220 !important; /* fully opaque, keep only canvas & top buttons visible */
+  backdrop-filter: none !important;
+}
+
+</style>
+
+<style id="fill_explain_theme_20251029_greenblue">
+  /* Explain panel light green background */
+  #explainPanel {
+    background: #e8fff0 !important; /* 浅绿色 */
+  }
+  /* Explain content: +10% font size, sapphire blue text */
+  #explainBody {
+    font-size: 110% !important;     /* 增大10% */
+    color: #0f52ba !important;      /* 宝蓝色（sapphire blue） */
+  }
+</style>
+
+
+<style id="auth_x_close_20251029">
+  #dlgRegister, #dlgLogin { position: relative; }
+  #dlgRegister .dlg-close-x, #dlgLogin .dlg-close-x {
+    position: absolute;
+    top: 6px; right: 8px;
+    border: none; background: transparent;
+    font-size: 18px; line-height: 1;
+    cursor: pointer;
+    opacity: .8;
+  }
+  #dlgRegister .dlg-close-x:hover, #dlgLogin .dlg-close-x:hover { opacity: 1; transform: scale(1.05); }
+</style>
+
 </head>
 <body>
 <div class="container">
@@ -565,6 +668,8 @@ html { -webkit-text-size-adjust: 100%; }
     </footer>
 </div>
 <dialog id="dlgRegister">
+<button type="button" class="dlg-close-x" aria-label="Close">❌</button>
+
 <form id="formRegister" method="dialog" style="min-width:300px">
 <h3>注册 Register</h3>
 <label>用户名 Username<br/>
@@ -583,6 +688,8 @@ html { -webkit-text-size-adjust: 100%; }
 </form>
 </dialog>
 <dialog id="dlgLogin">
+<button type="button" class="dlg-close-x" aria-label="Close">❌</button>
+
 <form id="formLogin" method="dialog" style="min-width:300px">
 <h3>登录 Login</h3>
 <label>用户名 Username<br/>
@@ -984,6 +1091,16 @@ const LESSON_URL = {
       // hide header controls in any sub-level
       if(id==='menu'){ document.body.classList.remove('subflow'); }
       else { document.body.classList.add('subflow'); }
+      // Ensure auth buttons visible on menu
+      if (id==='menu') {
+        try {
+          var btnRegister = document.getElementById('btnRegister');
+          var btnLogin = document.getElementById('btnLogin');
+          if (btnRegister) btnRegister.style.display = '';
+          if (btnLogin) btnLogin.style.display = '';
+        } catch(e){}
+      }
+
     }
     // Ensure on load we show menu only
     window.addEventListener('DOMContentLoaded', ()=>{ 
@@ -2888,6 +3005,24 @@ document.addEventListener('click', function(e){
   .level-btn.lv-disabled:after{content:' 未开放'; font-size:12px; margin-left:6px; opacity:.8}
   #fillLevelClose{margin-top:14px;display:block;margin-left:auto;padding:10px 14px;border-radius:12px;border:none;cursor:pointer;background:linear-gradient(145deg,#e6eeff,#ccdcff);box-shadow:inset 1px 1px 0 rgba(255,255,255,.55), 0 6px 16px rgba(0,0,0,.18);color:#0b2545}
 </style>
+<style id="fill_explain_center_20251029">
+  /* === Explain Panel Centering (only for 选词填空) === */
+  /* Scope: the unique #explainPanel used inside the Fill (选词填空) module */
+  #fillDemoScreen #explainPanel,
+  #fillLevelScreen #explainPanel,
+  #explainPanel {
+    position: absolute !important;
+    /* center relative to .fill-area which is already position:relative */
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -50%) !important;
+    /* keep existing width; only constrain max-height and overflow */
+    max-height: 90% !important;  /* ≤ 90% of game frame height */
+    overflow: auto !important;    /* internal scrolling */
+  }
+</style>
+
 <div aria-modal="true" class="fill-hidden" id="fillDemoScreen" role="dialog">
 <div id="fillDemoHeader">
 <div class="fill-title">选词填空 · 试玩 DEMO</div>
@@ -3060,13 +3195,16 @@ function ensureExplainData() { return ExplainData || []; }
 function showExplainPanelFor(questionIndex) {
   const panel = document.getElementById('explainPanel');
   const body  = document.getElementById('explainBody');
-  const area = document.getElementById('fillDemoArea');
-  const first = area && area.querySelector('.fill-sentence');
-  if (first) panel.style.top = (first.offsetTop + 8) + 'px';
-  panel.style.display = 'flex';
+  const area = document.querySelector('#fillDemoScreen .fill-area, #fillLevelScreen .fill-area') || (panel && panel.parentElement);
 
-  const dataAll = ensureExplainData();
+  // Ensure panel visible for measurement
+  panel.style.display = 'flex';
+  panel.style.height = 'auto';
+
+  // Prepare data and button wiring
+  const dataAll = (typeof ensureExplainData === 'function') ? ensureExplainData() : [];
   const data = dataAll[questionIndex] || {};
+
   function md2html(s){
     if(!s) return '';
     const esc = String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -3077,15 +3215,29 @@ function showExplainPanelFor(questionIndex) {
   const btns = panel.querySelectorAll('.explain-btn');
   btns.forEach(btn => {
     const lang = btn.dataset.lang;
-    const has  = data && data[lang] && data[lang].trim().length > 0;
+    const has  = !!(data && data[lang] && data[lang].trim().length > 0);
     btn.disabled = !has;
     btn.onclick = () => setText(data[lang] || '');
   });
 
-  const defaultLang = (data.zh && 'zh') || (data.en && 'en') || (data.th && 'th') || (data.ru && 'ru') || (data.lo && 'lo') || null;
-  if (defaultLang) { body.textContent = data[defaultLang]; } else { body.textContent = '（该题暂无解析）'; }
+  // Default language: zh -> en -> empty
+  if (data.zh) setText(data.zh);
+  else if (data.en) setText(data.en);
+  else setText('');
 
-  panel.querySelector('.explain-close').onclick = () => { panel.style.display = 'none'; };
+  // Height rule: 90% of game frame (.fill-area)
+  try {
+    const containerEl = area || panel.parentElement || document.body;
+    const containerH = containerEl ? (containerEl.clientHeight || window.innerHeight) : window.innerHeight;
+    const targetH = Math.floor(containerH * 0.9);
+    panel.style.height = targetH + 'px';
+  } catch (e) { /* no-op */ }
+
+  // Notify listeners so close button binding can re-attach if needed
+  if (typeof window !== 'undefined' && window.dispatchEvent) {
+    window.dispatchEvent(new CustomEvent('fill:explain:shown'));
+  }
+
 }
 
 // ---- Level selector logic ----
@@ -5897,6 +6049,47 @@ if ('serviceWorker' in navigator) {
 
 
 
+
+
+<script id="explainCloseFix_20251029">
+(function(){
+  function wireExplainClose(){
+    var p = document.getElementById('explainPanel');
+    if(!p) return;
+    var btn = p.querySelector('.explain-close');
+    if(btn){
+      btn.onclick = function(){
+        p.style.display = 'none';
+      };
+    }
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wireExplainClose);
+  } else {
+    wireExplainClose();
+  }
+  // Also re-wire when the explain panel is shown (in case DOM re-rendered)
+  window.addEventListener('fill:explain:shown', wireExplainClose);
+})();
+</script>
+
+<script id="auth_x_close_js_20251029">
+(function(){
+  function wireClose(el){
+    if(!el) return;
+    var btn = el.querySelector('.dlg-close-x');
+    if(btn){
+      btn.addEventListener('click', function(){ try{ el.close(); }catch(e){} });
+    }
+  }
+  function init(){
+    wireClose(document.getElementById('dlgRegister'));
+    wireClose(document.getElementById('dlgLogin'));
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 
 </body>
 
