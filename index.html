@@ -4834,8 +4834,8 @@ Tips:
             <button class="sb-mini" id="sb-back">返回上一级 / Back</button>
           </div>
           <div class="sb-ins">
-            <div>每题下方有若干个备选单词，请将这些单词组成一个通顺的句子，并按照顺序将这些单词拖动到下方的方框中，全部正确，可以进入下一题。</div>
-            <small>There are several candidate words below each question. Please arrange them into a coherent sentence and drag them, in order, into the box below. If all are correct, you can proceed to the next question.</small>
+            <div>请把上面的词语按正确顺序拖入下方方框。</div>
+            <small>Drag words into the slot below to form a correct sentence.</small>
           </div>
         </div>
         <div id="sb-toast" role="status" aria-live="polite"></div>
@@ -6093,43 +6093,142 @@ if ('serviceWorker' in navigator) {
 
 
 
+<style id="sb_align_like_fill_20251030">
+  /* --- 词语组句：游戏框外观对齐“选词填空”的 #fillDemoArea --- */
+  #sb-embed {
+    position: relative !important;
+    width: min(1000px, 92vw) !important;
+    min-height: 420px !important;
+    border-radius: 14px !important;
+    background: rgba(245,249,255,.96) !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.65) !important;
+    margin: 0 auto !important;
+    padding: 0 0 12px 0;
+  }
+
+  /* --- 词语组句：答案解析面板绝对定位，右缘与游戏框右缘齐平，宽度=55%游戏框 --- */
+  #sb-embed #sb-panel {
+    background-color: #E8F8EA !important; /* 浅绿色，完全不透明 */
+    color: #0F52BA !important; /* 宝蓝色文字 */
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: auto !important;
+    right: 0 !important; /* 直接贴合游戏框右缘 */
+    transform: translateY(-50%) !important;
+    width: var(--sb-explain-width, 520px) !important;  /* 由 JS 计算设置 */
+    max-height: 90% !important;
+    overflow: auto !important;
+    z-index: 50 !important;
+  }
+@media (max-width: 600px) {
+  #sb-embed #sb-panel {
+    right: auto !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 96% !important;
+  }
+}
+</style>
+
+<script id="sb_align_like_fill_js_20251030">
+(function(){
+  function applySbExplainLayout(){
+    try{
+      var embed = document.getElementById('sb-embed');
+      var panel = document.getElementById('sb-panel');
+      if(!embed || !panel) return;
+      // 基于游戏框自身计算宽度（无需关心外层居中间隙）
+      var w = embed.clientWidth || 0;
+      if(!w) return;
+      var factor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--explain-width-factor')) || 0.55;
+      var width = Math.max(280, Math.floor(w * factor)); // 与选词填空保持 55%
+      panel.style.setProperty('--sb-explain-width', width + 'px');
+      // 高度与滚动由 CSS 处理，不改动
+    }catch(e){ console.warn('[sb layout]', e); }
+  }
+
+  // 解析面板出现的时机：观察 #sb-panel 的显示变化
+  function observePanel(){
+    var panel = document.getElementById('sb-panel');
+    if(!panel) return;
+    try{
+      var mo = new MutationObserver(function(){
+        // 样式或 class 改变时重算（显示/隐藏/宽度发生变化）
+        requestAnimationFrame(applySbExplainLayout);
+      });
+      mo.observe(panel, { attributes:true, attributeFilter:['style','class'] });
+    }catch(_){}
+  }
+
+  // 初始 & 事件
+  window.addEventListener('DOMContentLoaded', function(){
+    applySbExplainLayout();
+    observePanel();
+  });
+  window.addEventListener('resize', applySbExplainLayout);
+
+  // 若运行时才创建 #sb-embed / #sb-panel，监听整个 stage 节点
+  try{
+    var stage = document.getElementById('stage') || document.body;
+    var mo2 = new MutationObserver(function(muts){
+      for (var i=0;i<muts.length;i++){
+        var t = muts[i].target;
+        if (t && (t.id === 'sb-embed' || (t.querySelector && (t.querySelector('#sb-embed') || t.querySelector('#sb-panel'))))){
+          applySbExplainLayout(); observePanel();
+          break;
+        }
+      }
+    });
+    mo2.observe(stage, { childList:true, subtree:true });
+  }catch(_){}
+})();
+</script>
+
+
 <style id="fill_explain_align_right_half_20251030">
-  /* === Explain Panel: right-aligned to game frame; width = 55% of game frame === */
   #fillDemoScreen .fill-area #explainPanel,
   #fillLevelScreen .fill-area #explainPanel {
     position: absolute !important;
     top: 50% !important;
     left: auto !important;
     transform: translateY(-50%) !important;
-    /* Use CSS variables so we can override !important constraints from older rules */
     width: var(--explain-width, 480px) !important;
     right: var(--explain-right-gap, 12px) !important;
   }
+@media (max-width: 600px) {
+  #fillDemoScreen .fill-area #explainPanel,
+  #fillLevelScreen .fill-area #explainPanel {
+    right: auto !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 96% !important;
+  }
+}
 </style>
-
 <script id="fill_explain_align_right_half_js_20251030">
 (function(){
   function applyExplainLayout(){
     try{
       var panel = document.getElementById('explainPanel');
-      var demoScreen = document.getElementById('fillDemoScreen');
-      if(!panel || !demoScreen) return;
+      if(!panel) return;
 
-      var area  = demoScreen.querySelector('.fill-area');
-      var game  = document.getElementById('fillDemoArea');
+      // Use the closest .fill-area context so this works for both Demo and Level screens
+      var area = panel.closest('.fill-area');
+      var game = area ? area.querySelector('#fillDemoArea') : null;
       if(!area || !game) return;
 
       var gameW = game.clientWidth || 0;
       var areaW = area.clientWidth || 0;
       if(!gameW || !areaW) return;
 
-      // width = 55% of game frame width
-      var desiredW = Math.max(0, Math.floor(gameW * 0.55));
-
-      // Right gap = (areaW - gameW) / 2, since game is centered in area
+      // width = 55% of game frame width (as user preferred)
+      var factor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--explain-width-factor')) || 0.55;
+      var desiredW = Math.max(0, Math.floor(gameW * factor));
       var rightGap = Math.max(0, Math.floor((areaW - gameW) / 2));
 
-      // Set CSS variables (work with !important rules reliably)
+      // Set CSS variables (paired with !important in CSS)
       panel.style.setProperty('--explain-width', desiredW + 'px');
       panel.style.setProperty('--explain-right-gap', rightGap + 'px');
     }catch(e){
@@ -6137,14 +6236,11 @@ if ('serviceWorker' in navigator) {
     }
   }
 
-  // Re-apply when explain panel is shown (custom event already dispatched elsewhere)
   window.addEventListener('fill:explain:shown', function(){
     requestAnimationFrame(applyExplainLayout);
     setTimeout(applyExplainLayout, 0);
   });
-  // Re-apply on window resize
   window.addEventListener('resize', applyExplainLayout);
-  // Initial
   window.addEventListener('DOMContentLoaded', function(){ setTimeout(applyExplainLayout, 0); });
 
   // Observe panel visibility/style changes
@@ -6158,6 +6254,9 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
+<style id="explain_shared_vars_20251030">
+  :root { --explain-width-factor: 0.55; } /* unified factor for both modules */
+</style>
 </body>
 
     <!-- 缓存优化函数 -->
