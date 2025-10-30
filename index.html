@@ -430,6 +430,62 @@ section.stage:has(#sb-embed),
   #dlgRegister .dlg-close-x:hover, #dlgLogin .dlg-close-x:hover { opacity: 1; transform: scale(1.05); }
 </style>
 
+
+<!-- Global responsive auto-fit patch (2025-10-30) -->
+<style id="global-responsive-20251030">
+  /* Container & hero */
+  .container{ max-width: min(1100px, 96vw) !important; padding-left: clamp(12px, 2vw, 24px) !important; padding-right: clamp(12px, 2vw, 24px) !important; }
+  .hero{ padding: clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px) !important; }
+  .title-cn{ font-size: clamp(24px, 5vw, 42px) !important; }
+  .title-en{ font-size: clamp(16px, 3.2vw, 28px) !important; }
+  .top-actions{ display:flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .top-actions .btn, .sound-wrap, .audio-controls-wrapper{ margin-top: 6px; }
+
+  /* Main menu (defensive selectors; will apply if #menu exists) */
+  #menu{ width: min(1100px, 96vw); margin: 0 auto; }
+  #menu > div{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: stretch; }
+  #menu .card{ min-height: clamp(120px, 22vw, 180px); }
+
+  /* Stage layout (module entry screen) */
+  .stage{ width: min(1100px, 96vw); margin-left:auto; margin-right:auto; }
+  .stage-header{ flex-wrap: wrap; row-gap: 8px; }
+  .module-title{ font-size: clamp(18px, 3vw, 28px); }
+  .subtitle{ font-size: clamp(12px, 2vw, 16px); }
+
+  .stage-actions{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  @media (max-width: 1100px){ .stage-actions{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px){ .stage-actions{ grid-template-columns: 1fr; } }
+
+  .action-btn, .btn, .mini-btn{ font-size: clamp(12px, 1.8vw, 16px); line-height: 1.2; padding: clamp(10px, 1.8vw, 14px) clamp(12px, 2.2vw, 18px); }
+
+  /* Levels & lessons */
+  .levels-panel, .lessons-panel{ width: min(1100px, 96vw); margin-left:auto !important; margin-right:auto !important; }
+  .levels-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; justify-items: stretch !important; }
+  /* Override fixed 10-col grid to auto-fit */
+  .lessons-grid-10{ grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important; gap: 10px !important; }
+
+  .lv-btn{ font-size: clamp(13px, 1.9vw, 16px); padding: clamp(12px, 2vw, 16px); }
+
+  /* Word-match board (三列→手机单列) */
+  .board{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: start; }
+  @media (max-width: 900px){ .board{ grid-template-columns: 1fr; } }
+
+  .col{ grid-auto-rows: minmax(clamp(42px, 6vw, 62px), auto); gap: 10px; padding: 6px; }
+  .tile, [class*="tile"]{ font-size: clamp(14px, 2.8vw, 18px); padding: clamp(8px, 2vw, 12px); white-space: normal; word-break: keep-all; }
+
+  /* Fill-in-the-blank + Sentence Building toolbars */
+  #sb-toolbar .sb-mini, #sb-topbar .sb-mini, .sb-mini, .fill-btn{ font-size: clamp(12px, 1.8vw, 16px) !important; padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 14px) !important; }
+  #sb-embed, #sb-panel, #fillDemoHeader, #fillLevelBox{ max-width: min(1100px, 96vw) !important; margin-left:auto !important; margin-right:auto !important; }
+
+  /* Explain panel & overlays */
+  #explainPanel{ width: min(100%, 1000px); margin-left:auto; margin-right:auto; }
+  #fillDemoScreen .fill-area{ padding: clamp(10px, 2vw, 16px); }
+
+  /* Safe-area on notched phones */
+  :root{ --safe-bottom: env(safe-area-inset-bottom); }
+  body{ padding-bottom: var(--safe-bottom); }
+</style>
+
 </head>
 <body>
 <div class="container">
