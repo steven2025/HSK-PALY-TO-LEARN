@@ -6091,6 +6091,73 @@ if ('serviceWorker' in navigator) {
 })();
 </script>
 
+
+
+<style id="fill_explain_align_right_half_20251030">
+  /* === Explain Panel: right-aligned to game frame; width = 55% of game frame === */
+  #fillDemoScreen .fill-area #explainPanel,
+  #fillLevelScreen .fill-area #explainPanel {
+    position: absolute !important;
+    top: 50% !important;
+    left: auto !important;
+    transform: translateY(-50%) !important;
+    /* Use CSS variables so we can override !important constraints from older rules */
+    width: var(--explain-width, 480px) !important;
+    right: var(--explain-right-gap, 12px) !important;
+  }
+</style>
+
+<script id="fill_explain_align_right_half_js_20251030">
+(function(){
+  function applyExplainLayout(){
+    try{
+      var panel = document.getElementById('explainPanel');
+      var demoScreen = document.getElementById('fillDemoScreen');
+      if(!panel || !demoScreen) return;
+
+      var area  = demoScreen.querySelector('.fill-area');
+      var game  = document.getElementById('fillDemoArea');
+      if(!area || !game) return;
+
+      var gameW = game.clientWidth || 0;
+      var areaW = area.clientWidth || 0;
+      if(!gameW || !areaW) return;
+
+      // width = 55% of game frame width
+      var desiredW = Math.max(0, Math.floor(gameW * 0.55));
+
+      // Right gap = (areaW - gameW) / 2, since game is centered in area
+      var rightGap = Math.max(0, Math.floor((areaW - gameW) / 2));
+
+      // Set CSS variables (work with !important rules reliably)
+      panel.style.setProperty('--explain-width', desiredW + 'px');
+      panel.style.setProperty('--explain-right-gap', rightGap + 'px');
+    }catch(e){
+      console.warn('[fill explain layout]', e);
+    }
+  }
+
+  // Re-apply when explain panel is shown (custom event already dispatched elsewhere)
+  window.addEventListener('fill:explain:shown', function(){
+    requestAnimationFrame(applyExplainLayout);
+    setTimeout(applyExplainLayout, 0);
+  });
+  // Re-apply on window resize
+  window.addEventListener('resize', applyExplainLayout);
+  // Initial
+  window.addEventListener('DOMContentLoaded', function(){ setTimeout(applyExplainLayout, 0); });
+
+  // Observe panel visibility/style changes
+  var panelObs = new MutationObserver(function(){ applyExplainLayout(); });
+  window.addEventListener('DOMContentLoaded', function(){
+    var panel = document.getElementById('explainPanel');
+    if(panel){
+      try{ panelObs.observe(panel, { attributes:true, attributeFilter:['style','class'] }); }catch(_){}
+    }
+  });
+})();
+</script>
+
 </body>
 
     <!-- 缓存优化函数 -->
